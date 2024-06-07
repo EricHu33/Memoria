@@ -60,9 +60,10 @@ Shader "PSX/BattleMap_StatusEffect" {
 			}
 			Program "fp" {
 				SubProgram "d3d9 " {
-					Vector 1 [_Color]
-					Float 2 [_Cutoff]
-					Float 0 [_IsPetrify]
+				    Vector 0 [_WorldSpaceLightPos0]
+					Vector 2 [_Color]
+					Float 3 [_Cutoff]
+					Float 1 [_IsPetrify]
 					SetTexture 0 [_MainTex] 2D 0
 					SetTexture 1 [_DetailTex] 2D 1
 					"ps_2_0
@@ -79,8 +80,8 @@ Shader "PSX/BattleMap_StatusEffect" {
                         mov r2.x, t0.z
                         mov r2.y, t0.w
                         texld_pp r2, r2, s1
-                        mul_pp r1.xyz, r1.x, r2
-                        mad_pp r1.xyz, r0, c1, r1
+                        mul r1.xyz, r1.x, r2
+                        mad_pp r1.xyz, r1, c1, r0
                         dp3_pp r1.w, r0, c3
                         lrp_pp r0.xyz, c0.x, r1.w, r1
                         mov_pp oC0, r0
