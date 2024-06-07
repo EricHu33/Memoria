@@ -47,8 +47,8 @@ Shader "PSX/BattleMap_StatusEffect" {
 						mul r0.z, r0.y, r0.z
 						add r1.xy, -r0.zwzw, c11.zyzw
 						mad oPos.zw, r0.x, r1.xyxy, r0
-						mad oT0.xy, v1, c9, c9.zwzw
-						mad oT0.zw, v1.xyxy, c10.xyxy, c10
+						mad oT0.zw, v1, c9, c9.zwzw
+						mad oT0.xy, v1.xyxy, c10.xyxy, c10
                         dp3 r0.x, c0, v2
                         dp3 r0.y, c1, v2
                         dp3 r0.z, c2, v2
@@ -66,22 +66,24 @@ Shader "PSX/BattleMap_StatusEffect" {
 					SetTexture 0 [_MainTex] 2D 0
 					SetTexture 1 [_DetailTex] 2D 1
 					"ps_2_0
-					     def c1, 0, 1, -0, -1
-                         dcl t0
-                         dcl_2d s0
-                         dcl_2d s1
-                         mov r0.x, t0.z
-                         mov r0.y, t0.w
-                         texld_pp r0, r0, s1
-                         texld_pp r1, t0, s0
-                         add r0.x, r0.w, -c0.x
-                         add r0.y, r1.w, -c0.x
-                         cmp r0.xy, r0, c1.x, c1.y
-                         add r0.x, r0.y, r0.x
-                         cmp r0, -r0.x, c1.z, c1.w
-                         texkill r0
-                         mov_pp oC0, r1
-						
+                        def c3, 0.212672904, 0.715152204, 0.0721750036, 0
+                        def c4, -0, -1, 1, 0
+                        dcl t0
+                        dcl_2d s0
+                        dcl_2d s1
+                        texld_pp r0, t0, s0
+                        add r1.w, r0.w, -c2.x
+                        cmp r1, r1.w, c4.x, c4.y
+                        texkill r1
+                        add_pp r1.x, -r0.w, c4.z
+                        mov r2.x, t0.z
+                        mov r2.y, t0.w
+                        texld_pp r2, r2, s1
+                        mul_pp r1.xyz, r1.x, r2
+                        mad_pp r1.xyz, r0, c1, r1
+                        dp3_pp r1.w, r0, c3
+                        lrp_pp r0.xyz, c0.x, r1.w, r1
+                        mov_pp oC0, r0
 						"
 				}
 			}
