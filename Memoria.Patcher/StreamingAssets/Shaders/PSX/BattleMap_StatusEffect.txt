@@ -16,6 +16,7 @@ Shader "PSX/BattleMap_StatusEffect" {
 				SubProgram "d3d9 " {
 					Bind "vertex" Vertex
 					Bind "texcoord" TexCoord0
+					Bind "normal" Normal
 					Matrix 0 [glstate_matrix_modelview0]
 					Matrix 4 [glstate_matrix_projection]
 					Vector 10 [_DetailTex_ST]
@@ -25,6 +26,7 @@ Shader "PSX/BattleMap_StatusEffect" {
 						def c11, 20, 1, 60000, 0
 						dcl_position v0
 						dcl_texcoord v1
+						dcl_normal v2
 						dp4 r0.x, c0, v0
 						dp4 r0.y, c1, v0
 						dp4 r0.w, c3, v0
@@ -47,7 +49,12 @@ Shader "PSX/BattleMap_StatusEffect" {
 						mad oPos.zw, r0.x, r1.xyxy, r0
 						mad oT0.xy, v1, c9, c9.zwzw
 						mad oT0.zw, v1.xyxy, c10.xyxy, c10
-						
+                        dp3 r0.x, c0, v2
+                        dp3 r0.y, c1, v2
+                        dp3 r0.z, c2, v2
+                        dp3 r0.w, r0, r0
+                        rsq r0.w, r0.w
+                        mul oT1.xyz, r0.w, r0
 						"
 				}
 			}
@@ -59,28 +66,21 @@ Shader "PSX/BattleMap_StatusEffect" {
 					SetTexture 0 [_MainTex] 2D 0
 					SetTexture 1 [_DetailTex] 2D 1
 					"ps_2_0
-						def c3, -0.5, 0.715200007, 0.212599993, 0.0722000003
-						dcl_pp t0
-						dcl_2d s0
-						dcl_2d s1
-						texld_pp r0, t0, s0
-						add_pp r1, r0.w, -c2.x
-						mov_pp r2.x, t0.z
-						mov_pp r2.y, t0.w
-						texkill r1
-						texld_pp r1, r2, s1
-						mov r1.w, c3.x
-						add_pp r2.xyz, r1.w, c1
-						add_pp r2.xyz, r0, r2
-						mul r1.w, r2.y, c3.y
-						mad r1.w, r2.x, c3.z, r1.w
-						mad_pp r1.w, r2.z, c3.w, r1.w
-						mul r1.xyz, r1, r1.w
-						mul r1.xyz, r1, -c3.x
-						mad_pp r1.xyz, r1.w, -c3.x, r1
-						mul r1.w, c0.x, c0.x
-						cmp_pp r0.xyz, -r1.w, r2, r1
-						mov_pp oC0, r0
+					     def c1, 0, 1, -0, -1
+                         dcl t0
+                         dcl_2d s0
+                         dcl_2d s1
+                         mov r0.x, t0.z
+                         mov r0.y, t0.w
+                         texld_pp r0, r0, s1
+                         texld_pp r1, t0, s0
+                         add r0.x, r0.w, -c0.x
+                         add r0.y, r1.w, -c0.x
+                         cmp r0.xy, r0, c1.x, c1.y
+                         add r0.x, r0.y, r0.x
+                         cmp r0, -r0.x, c1.z, c1.w
+                         texkill r0
+                         mov_pp oC0, r1
 						
 						"
 				}
