@@ -15,23 +15,27 @@ Shader "PSX/FieldMapActor" {
 					Bind "vertex" Vertex
 					Bind "color" Color
 					Bind "texcoord" TexCoord0
+					Bind "normal" Normal
 					Matrix 4 [_MatrixRT]
-					Matrix 0 [_Object2World]
-					Matrix 8 [unity_MatrixVP] 3
-					Float 16 [_CharZ]
-					Vector 11 [_Color]
-					Float 15 [_DepthOffset]
-					Float 13 [_OffsetX]
-					Float 14 [_OffsetY]
-					Float 12 [_ViewDistance]
-					Float 30 [_MulX]
-					Float 31 [_MulY]
+                    					Matrix 0 [_Object2World]
+                    					Matrix 8 [unity_MatrixVP] 3
+                    					Float 16 [_CharZ]
+                    					Vector 11 [_Color]
+                    					Float 15 [_DepthOffset]
+                    					Float 13 [_OffsetX]
+                    					Float 14 [_OffsetY]
+                    					Float 12 [_ViewDistance]
+                    					Vector 19 [_WorldSpaceCameraPos]
+                    					Matrix 20 [unity_MatrixInvV] 3
+                    					Float 30 [_MulX]
+                    					Float 31 [_MulY]
 					"vs_2_0
 						def c17, 0, -112, -1, 0.25
 						def c18, 0.00625000000, 0.00892857183, 0, 0
 						dcl_position v0
 						dcl_color v1
 						dcl_texcoord v2
+						dcl_normal v3
 						mov r0.yw, c17.xxzz
 						dp4 r1.x, c1, v0
 						mov r1.y, -r1.x
@@ -67,19 +71,34 @@ Shader "PSX/FieldMapActor" {
 						mul oD0, v1, c11
 						mov oPos.w, -c17.z
 						mov oT0.xy, v2
-						
+                        
+                        dp3 r4.x, c0, v3
+                        dp3 r4.y, c1, v3
+                        dp3 r4.z, c2, v3
+                        dp3 r4.w, r4, r4
+                        rsq r4.w, r4.w
+                        mul oT2.xyz, r4.w, r4
+                        
+                        dp4 oT3.x, c20, r2
+                        dp4 oT3.y, c21, r2
+                        dp4 oT3.z, c22, r2
 						"
 				}
 			}
 			Program "fp" {
 				SubProgram "d3d9 " {
 					Float 0 [_Slice]
+					Vector 2[_WorldSpaceCameraPos]
 					SetTexture 0 [_MainTex] 2D 0
 					"ps_2_0
-						def c1, -0.5, 0, 0, 0
+                        def c1, -0.5, 0, 0, 0
+                        def c3, -0.196116135, 0.980580688, 0, 0.5
+                        def c4, 32, 0.300000012, 0, 0
 						dcl v0
 						dcl t0.xy
 						dcl t1.xyz
+						dcl t2.xyz
+						dcl t3.xyz
 						dcl_2d s0
 						texld_pp r0, t0, s0
 						mov r1, t1.z
@@ -88,11 +107,21 @@ Shader "PSX/FieldMapActor" {
 						texkill r1
 						texkill r2
 						texkill r3
-						mul_pp r0, r0, v0
-						mul_pp r1.xyz, r0.w, r0
-						add_pp r0.xyz, r1, r1
-						mov_pp oC0, r0
 						
+					    add r1.xyz, -t3, c2
+                        dp3 r1.w, r1, r1
+                        rsq r1.w, r1.w
+                        mad_pp r1.xyz, r1, r1.w, c3
+                        nrm_pp r2.xyz, r1
+                        nrm_pp r1.xyz, t2
+                        dp3_sat_pp r1.z, r2, r1
+                        dp2add_pp r1.x, r1, c3, c3.z
+                        mad_sat_pp r1.x, r1.x, c3.w, c3.w
+                        pow_pp r2.x, r1.z, c4.x
+                        mul_pp r1.y, r2.x, c4.y
+                        mad_pp r0.xyz, r0, r1.x, r1.y
+                        mov_pp oC0, r0
+
 						"
 				}
 			}

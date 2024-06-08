@@ -3465,6 +3465,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ff9.ico" />
+    <Content Include="StreamingAssets\Shaders\PSX\BattleMap_CustomStatusEffect.txt" />
     <None Include="StreamingAssets\Data\Text\LocalizationPatch.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
