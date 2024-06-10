@@ -103,9 +103,8 @@ Shader "PSX/FieldMapActor" {
                 	SetTexture 0 [_MainTex] 2D 0
 					"ps_2_0
                         def c1, -0.5, 0, 1, 0.5
-                        def c2, 0.5, -0.501955032, -4, 3
-                        def c3, -0.196116135, 0.980580688, 0, 0.25
-                        def c4, 16, 0.300000012, 0, 0
+                        def c2, -0.196116135, 0.980580688, 0, 2
+                        def c3, 0.5, -0.823500037, 16, 0
                         dcl t0.xy
                         dcl t1.xyz
                         dcl t2.xyz
@@ -127,27 +126,37 @@ Shader "PSX/FieldMapActor" {
                         max r2.w, r1.x, r0.z
                         min r1.x, r0.y, r0.x
                         min r2.x, r0.z, r1.x
-                        add r1.x, r2.x, r2.w
-                        mad_pp r1.x, r1.x, c2.x, c2.y
-                        abs_pp r1.x, r1.x
+                        add r1.x, -r2.w, -r2.x
+                        add r1.x, r1.x, c2.w
+                        rcp r1.x, r1.x
+                        add r1.y, -r2.x, r2.w
+                        mul_pp r1.x, r1.x, r1.y
+                        add r1.z, r2.x, r2.w
+                        rcp r1.w, r1.z
+                        mul_pp r1.w, r1.w, r1.y
+                        add r2.x, r1.z, -c1.z
+                        cmp_pp r1.x, r2.x, r1.x, r1.w
+                        add r1.x, r1.x, -c1.z
+                        abs r1.x, r1.x
                         add r1.x, -r1.x, c1.z
                         mul r1.x, r1.x, c1.w
-                        max r2.x, r1.x, c1.y
-                        mad r1.x, r2.x, c2.z, c2.w
-                        add r1.y, r2.x, r2.x
                         mul r1.y, r1.y, r1.y
-                        mad r1.z, r1.x, -r1.y, c1.z
-                        mul r1.x, r1.y, r1.x
-                        mad r1.x, r1.z, c3.w, r1.x
+                        cmp r1.x, -r1.y, c1.y, r1.x
+                        mad_pp r1.y, r1.z, c3.x, c3.y
+                        abs_pp r1.y, r1.y
+                        add r1.y, -r1.y, c1.z
+                        mad r1.x, r1.y, c1.w, r1.x
+                        add r1.y, -r1.x, c1.z
+                        cmp r1.x, r1.x, r1.y, c1.z
                         dp3 r1.y, t3, t3
                         rsq r1.y, r1.y
-                        mad r2.xyz, t3, r1.y, c3
+                        mad r2.xyz, t3, r1.y, c2
                         nrm_pp r3.xyz, r2
                         nrm_pp r2.xyz, t2
                         dp3_sat_pp r1.y, r3, r2
-                        pow_pp r2.z, r1.y, c4.x
-                        mul_pp r1.y, r2.z, c4.y
-                        dp2add_pp r1.z, r2, c3, c3.z
+                        pow_pp r2.z, r1.y, c3.z
+                        mul_pp r1.y, r2.z, c1.w
+                        dp2add_pp r1.z, r2, c2, c2.z
                         mad_sat_pp r1.z, r1.z, c1.w, c1.w
                         mul_pp r2, r0, v0
                         mul_pp r2.xyz, r2, r2.w
