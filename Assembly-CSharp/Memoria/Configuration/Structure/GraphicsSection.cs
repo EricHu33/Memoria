@@ -26,7 +26,7 @@ namespace Memoria
 
             public GraphicsSection() : base(nameof(GraphicsSection), false)
             {
-                CustomShader = BindInt32(nameof(BattleFPS), 0);
+                CustomShader = BindInt32(nameof(CustomShader), 0);
                 BattleFPS = BindInt32(nameof(BattleFPS), 30);
                 BattleTPS = BindInt32(nameof(BattleTPS), 15);
                 FieldFPS = BindInt32(nameof(FieldFPS), 30);
