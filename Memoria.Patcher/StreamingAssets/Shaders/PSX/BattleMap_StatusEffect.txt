@@ -63,8 +63,8 @@ Shader "PSX/BattleMap_StatusEffect" {
 					"ps_2_0
                         def c3, -0, -1, -0.5, 0.212599993
                         def c4, 0.715200007, 0.0722000003, 0.5, -0.501955032
-                        def c5, -0.196116135, 0.980580688, 0, 24
-                        def c6, -4, 3, 0.699999988, 0
+                        def c5, -0.196116135, 0.980580688, 0, 0.449999988
+                        def c6, -4, 3, 0.800000012, 18
                         dcl t0
                         dcl t1.xyz
                         dcl t2.xyz
@@ -91,7 +91,8 @@ Shader "PSX/BattleMap_StatusEffect" {
                         mul r2.x, r2.x, r2.x
                         mad r2.y, r1.w, -r2.x, -c3.y
                         mul r1.w, r1.w, r2.x
-                        mad r1.w, r2.y, -c3.z, r1.w
+                        mad r1.w, r2.y, c5.w, r1.w
+                        mul r1.w, r1.w, c6.z
                         dp3 r2.x, t2, t2
                         rsq r2.x, r2.x
                         mov r3.x, t0.z
@@ -104,8 +105,8 @@ Shader "PSX/BattleMap_StatusEffect" {
                         nrm_pp r4.xyz, r3
                         nrm_pp r3.xyz, t1
                         dp3_sat_pp r2.x, r4, r3
-                        pow_pp r3.z, r2.x, c5.w
-                        mul_pp r2.x, r3.z, c6.z
+                        pow_pp r3.z, r2.x, c6.w
+                        mul_pp r2.x, r3.z, -c3.z
                         dp2add_pp r2.z, r3, c5, c5.z
                         mad_sat_pp r2.z, r2.z, -c3.z, -c3.z
                         mad r3.xyz, r1, r2.y, -r1
