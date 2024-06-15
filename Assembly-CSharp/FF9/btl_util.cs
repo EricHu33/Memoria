@@ -483,6 +483,7 @@ namespace FF9
             {
                 componentsInChildren[i].material.shader = shader;
                 componentsInChildren[i].material.SetFloat("_Cutoff", 0.5f);
+                componentsInChildren[i].material.SetFloat("_IsEnemy", btl.bi.player == 0 ? 1 : 0);
                 componentsInChildren[i].material.SetTexture("_DetailTex", FF9StateSystem.Battle.detailTexture);
             }
             MeshRenderer[] componentsInChildren2 = go.GetComponentsInChildren<MeshRenderer>();

@@ -68,7 +68,6 @@ Shader "PSX/BattleMap_StatusEffect_RealLighting" {
                         def c6, -0.196116135, 0.980580688, 0, 0.600000024
                         def c7, 0.0200259537, -0.100129783, -0.440225452, 0.449999988
                         def c8, -4, 3, 32, 0
-                        def c9, 0, -1, -1, 0
                         dcl t0
                         dcl t1.xyz
                         dcl t2.xyz
@@ -99,9 +98,9 @@ Shader "PSX/BattleMap_StatusEffect_RealLighting" {
                         mul r1.w, r1.w, c6.w
                         dp3 r2.x, t2, t2
                         rsq r2.x, r2.x
-                        mov r3.x, c3.x
-                        mov r4.xyz, c7
-                        mad_pp r3.xyz, r3.x, r4, c6
+                        mov r3.xyz, c7
+                        mov r4.xyz, c6
+                        mad_pp r3.xyz, c3.x, r3, r4
                         mad r2.xyz, t2, r2.x, r3
                         nrm_pp r4.xyz, r2
                         nrm_pp r2.xyz, t1
@@ -120,9 +119,7 @@ Shader "PSX/BattleMap_StatusEffect_RealLighting" {
                         mad r1.xyz, c0.x, r3, r1
                         mad r2.xyz, r1, r2.x, -r1
                         mad r1.xyz, r1.w, r2, r1
-                        mad r1.xyz, r2.w, r1.w, r1
-                        mul r2.xyz, r1, c3.x
-                        mad_pp r0.xyz, r2, c9, r1
+                        mad_pp r0.xyz, r2.w, r1.w, r1
                         mov_pp oC0, r0
 						"
 				}
