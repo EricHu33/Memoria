@@ -73,7 +73,7 @@ Shader "PSX/BattleMap_Plus" {
         Pass {
 			Name "SHADOWCASTER"
 			Tags { "QUEUE"="AlphaTest+3" "LIGHTMODE"="SHADOWCASTER" "IGNOREPROJECTOR"="true" "SHADOWSUPPORT"="true" "RenderType"="TransparentCutout" }
-            Cull Off
+            Cull Back
 			Program "vp" {
 				SubProgram "d3d9 " {
 					Keywords { "SHADOWS_DEPTH" }
