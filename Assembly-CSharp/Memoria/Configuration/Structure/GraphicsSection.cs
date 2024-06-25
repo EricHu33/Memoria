@@ -8,8 +8,10 @@ namespace Memoria
         private sealed class GraphicsSection : IniSection
         {
             public readonly IniValue<Int32> CustomShader;
-            public readonly IniValue<Int32> ToonShading;
-            public readonly IniValue<Int32> RealismShading;
+            public readonly IniValue<Int32> EnableRealismShadingForField;
+            public readonly IniValue<Int32> EnableToonShadingForField;
+            public readonly IniValue<Int32> EnableRealismShadingForBattle;
+            public readonly IniValue<Int32> EnableToonShadingForBattle;
             public readonly IniValue<Int32> OutlineForFieldCharacter;
             public readonly IniValue<Int32> OutlineForBattleCharacter;
             public readonly IniValue<Int32> EnableSSAO;
@@ -32,8 +34,10 @@ namespace Memoria
             public GraphicsSection() : base(nameof(GraphicsSection), false)
             {
                 CustomShader = BindInt32(nameof(CustomShader), 0);
-                ToonShading = BindInt32(nameof(ToonShading), 0);
-                RealismShading = BindInt32(nameof(RealismShading), 0);
+                EnableRealismShadingForField = BindInt32(nameof(EnableRealismShadingForField), 0);
+                EnableToonShadingForField = BindInt32(nameof(EnableToonShadingForField), 0);
+                EnableRealismShadingForBattle = BindInt32(nameof(EnableRealismShadingForBattle), 0);
+                EnableToonShadingForBattle = BindInt32(nameof(EnableToonShadingForBattle), 0);
                 OutlineForFieldCharacter = BindInt32(nameof(OutlineForFieldCharacter), 0);
                 OutlineForBattleCharacter = BindInt32(nameof(OutlineForBattleCharacter), 0);
                 EnableSSAO = BindInt32(nameof(EnableSSAO), 0);

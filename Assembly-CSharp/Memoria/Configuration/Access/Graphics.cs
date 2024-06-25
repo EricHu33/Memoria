@@ -9,8 +9,10 @@ namespace Memoria
         public static class Graphics
         {
             public static Int32 CustomShader => Instance._graphics.CustomShader;
-            public static Int32 ToonShading => Instance._graphics.ToonShading;
-            public static Int32 RealismShading => Instance._graphics.RealismShading;
+            public static Int32 EnableRealismShadingField => Instance._graphics.EnableRealismShadingForField;
+            public static Int32 EnableToonShadingField => Instance._graphics.EnableToonShadingForField;
+            public static Int32 EnableRealismShadingBattle => Instance._graphics.EnableRealismShadingForBattle;
+            public static Int32 EnableToonShadingBattle => Instance._graphics.EnableToonShadingForBattle;
             public static Int32 OutlineForFieldCharacter => Instance._graphics.OutlineForFieldCharacter;
             public static Int32 OutlineForBattleCharacter => Instance._graphics.OutlineForBattleCharacter;
             public static Int32 EnableSSAO => Instance._graphics.EnableSSAO;
