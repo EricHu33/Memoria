@@ -88,6 +88,14 @@ namespace Memoria.Launcher
                 new Binding(nameof(OutlineForBattleCharacter)) { Mode = BindingMode.TwoWay });
             EnableOutlineForBattleCharacter.Foreground = Brushes.White;
             EnableOutlineForBattleCharacter.ToolTip = Lang.Settings.EnableCustomShader_Tooltip;
+            
+            UiCheckBox UiEnableSSAO =
+                AddUiElement(UiCheckBoxFactory.Create(Lang.Settings.EnableSSAO, null), 13, 0, 3,
+                    8);
+            UiEnableSSAO.SetBinding(ToggleButton.IsCheckedProperty,
+                new Binding(nameof(EnableSSAO)) { Mode = BindingMode.TwoWay });
+            UiEnableSSAO.Foreground = Brushes.White;
+            UiEnableSSAO.ToolTip = Lang.Settings.EnableCustomShader_Tooltip;
 
             foreach (FrameworkElement child in Children)
             {
@@ -122,6 +130,7 @@ namespace Memoria.Launcher
         #region Properties
 
         private Int16 _customshader, _toonShading, _realismShading, _outlineForField, _outlineForBattle;
+        private Int16 _enableSSAO;
 
         public Int16 CustomShader
         {
@@ -195,6 +204,19 @@ namespace Memoria.Launcher
                 }
             }
         }
+        
+        public Int16 EnableSSAO
+        {
+            get { return _enableSSAO; }
+            set
+            {
+                if (_enableSSAO != value)
+                {
+                    _enableSSAO = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
 
         #endregion
 
@@ -243,6 +265,7 @@ namespace Memoria.Launcher
                         MakeIniNotNull("Graphics", "RealismShading", "0");
                         MakeIniNotNull("Graphics", "OutlineForFieldCharacter", "0");
                         MakeIniNotNull("Graphics", "OutlineForBattleCharacter", "0");
+                        MakeIniNotNull("Graphics", "EnableSSAO", "0");
 
                         MakeIniNotNull("Control", "Enabled", "1");
                         MakeIniNotNull("Control", "DisableMouse", "0");
@@ -424,6 +447,10 @@ namespace Memoria.Launcher
                         iniFile.WriteValue("Graphics", "OutlineForBattleCharacter ",
                             " " + OutlineForBattleCharacter.ToString());
                         break;
+                    case nameof(EnableSSAO):
+                        iniFile.WriteValue("Graphics", "EnableSSAO ",
+                            " " + EnableSSAO.ToString());
+                        break;
                 }
             }
             catch (Exception ex)
@@ -485,6 +512,15 @@ namespace Memoria.Launcher
                 if (!Int16.TryParse(value, out _outlineForBattle))
                     _outlineForBattle = 0;
                 OnPropertyChanged(nameof(OutlineForBattleCharacter));
+                
+                value = iniFile.ReadValue("Graphics", "EnableSSAO");
+                if (String.IsNullOrEmpty(value))
+                {
+                    value = " 0";
+                }
+                if (!Int16.TryParse(value, out _enableSSAO))
+                    _enableSSAO = 0;
+                OnPropertyChanged(nameof(EnableSSAO));
             }
             catch (Exception ex)
             {

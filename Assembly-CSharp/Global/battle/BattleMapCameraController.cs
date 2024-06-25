@@ -1,4 +1,5 @@
-﻿using Memoria.Prime;
+﻿using Memoria;
+using Memoria.Prime;
 using Memoria.Scenes;
 using Memoria.Scripts;
 using System;
@@ -92,10 +93,11 @@ public class BattleMapCameraController : MonoBehaviour
     private static ControlPanel infoPanel;
     
     private static Int32 SSAOPanel;
-    private float _aoStrength =2.0f;
-    private float _aoPower =1.5f;
+    private float _aoStrength =1.32f;
+    private float _aoPower =1.77f;
     private float _aoRadius = 90f;
-    private float _aoFallOffset = 1f;
+    private float _aoFallOffset = 1.28f;
+    private bool FF9_ENABLE_SSAO = false;
     private static void SetScalingFactor(Single factor)
     {
     }
@@ -125,7 +127,8 @@ public class BattleMapCameraController : MonoBehaviour
     
     private void Awake()
     {
-       // SetupGraphicDebugMenu();
+        FF9_ENABLE_SSAO = Configuration.Graphics.EnableSSAO == 1;
+        //SetupGraphicDebugMenu();
 		this.defaultCamID = UnityEngine.Random.Range(0, 3);
 		this.psxCam = new PsxCamera();
 		this.mainCam = base.GetComponent<Camera>();
@@ -135,19 +138,33 @@ public class BattleMapCameraController : MonoBehaviour
         _blueNoise = AssetManager.LoadTextureGeneric(raw);
         this._postEffectMat = new Material(ShadersLoader.Find("PSX/PostEffect"));
         this.copyDepthMat = new Material(ShadersLoader.Find("PSX/CopyGlobalDepth"));
-        if (m_dummyRT == null)
-            m_dummyRT = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.ARGBFloat);
-        if (_SsaoRT == null)
-            _SsaoRT = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.ARGBFloat);
+        if (FF9_ENABLE_SSAO)
+        {
+            if (m_dummyRT == null)
+                m_dummyRT = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.ARGBFloat);
+            if (_SsaoRT == null)
+                _SsaoRT = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.ARGBFloat);
         
-        _CustomTempRT = Shader.PropertyToID("_tempRT");
-        var commandBufferDrawDepth = new CommandBuffer { name = "Render to Custom Depth Texture" };
-        commandBufferDrawDepth.SetGlobalTexture("_CustomViewZMap", m_dummyRT);
-        commandBufferDrawDepth.GetTemporaryRT(_CustomTempRT, Screen.width, Screen.height);
-        commandBufferDrawDepth.Blit(_CustomTempRT, _SsaoRT, _postEffectMat);
-        commandBufferDrawDepth.SetGlobalTexture("_SSAO", _SsaoRT);
-        commandBufferDrawDepth.ReleaseTemporaryRT(_CustomTempRT);
-        this.mainCam.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, commandBufferDrawDepth);
+            _CustomTempRT = Shader.PropertyToID("_tempRT");
+            var commandBufferDrawDepth = new CommandBuffer { name = "Render to Custom Depth Texture" };
+            commandBufferDrawDepth.SetGlobalTexture("_CustomViewZMap", m_dummyRT);
+            commandBufferDrawDepth.GetTemporaryRT(_CustomTempRT, Screen.width, Screen.height);
+            commandBufferDrawDepth.Blit(_CustomTempRT, _SsaoRT, _postEffectMat);
+            commandBufferDrawDepth.SetGlobalTexture("_SSAO", _SsaoRT);
+            commandBufferDrawDepth.ReleaseTemporaryRT(_CustomTempRT);
+            this.mainCam.AddCommandBuffer(CameraEvent.BeforeForwardOpaque, commandBufferDrawDepth);   
+        }
+        else
+        {
+            if (_SsaoRT == null)
+                _SsaoRT = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.ARGBFloat);
+           
+            RenderTexture rt = RenderTexture.active;
+            RenderTexture.active = _SsaoRT;
+            GL.Clear(true, true, Color.white);
+            RenderTexture.active = rt;
+            Shader.SetGlobalTexture("_SSAO", _SsaoRT);
+        }
     }
     private void CheckSupport(RenderTextureFormat format)
     {
@@ -159,21 +176,21 @@ public class BattleMapCameraController : MonoBehaviour
         Vector3 _EnemyMainLightDirection = new Vector3(-0.6f, 2f, 0.6f);
         Shader.SetGlobalVector("_MainLightDirection", _MainLightDirection);
         Shader.SetGlobalVector("_EnemyMainLightDirection", _EnemyMainLightDirection);
-        var originFar = this.mainCam.farClipPlane;
-        var originNear = this.mainCam.nearClipPlane; 
-        var originRT = this.mainCam.targetTexture != null ? this.mainCam.targetTexture : null;
+        if (FF9_ENABLE_SSAO)
+        {
+            var originFar = this.mainCam.farClipPlane;
+            var originNear = this.mainCam.nearClipPlane; 
+            var originRT = this.mainCam.targetTexture != null ? this.mainCam.targetTexture : null;
+
+            this.mainCam.targetTexture = m_dummyRT;
+            this.mainCam.Render();
+            this.mainCam.targetTexture = originRT;
+            viewMatrix = this.mainCam.worldToCameraMatrix;
+            projectionMatrix =  GL.GetGPUProjectionMatrix(this.mainCam.projectionMatrix, false);
         
-        //this.mainCam.nearClipPlane = 0.01f;
-       // this.mainCam.farClipPlane = 300;
-        this.mainCam.targetTexture = m_dummyRT;
-        this.mainCam.Render();
-        this.mainCam.targetTexture = originRT;
-        viewMatrix = this.mainCam.worldToCameraMatrix;
-        projectionMatrix =  GL.GetGPUProjectionMatrix(this.mainCam.projectionMatrix, false);
-        
-        this.mainCam.farClipPlane = originFar;
-        this.mainCam.nearClipPlane = originNear;
-        //this.mainCam.forceIntoRenderTexture = false;
+            this.mainCam.farClipPlane = originFar;
+            this.mainCam.nearClipPlane = originNear;
+        }
 	}
 
 	private void LateUpdate()
@@ -183,37 +200,44 @@ public class BattleMapCameraController : MonoBehaviour
 
     private void OnPreRender()
     {
-        if (this.mainCam.targetTexture == m_dummyRT)
+        if (FF9_ENABLE_SSAO)
         {
-            this.mainCam.depthTextureMode = DepthTextureMode.Depth;
-            // Combine the view and projection matrices
-            Matrix4x4 viewProjectionMatrix = projectionMatrix * viewMatrix;
-            // Invert the combined matrix to get the inverse view projection matrix
-            Matrix4x4 inverseViewProjectionMatrix = viewProjectionMatrix.inverse;
-            //_postEffectMat.SetMatrix("_InvVP", inverseViewProjectionMatrix);
-            _postEffectMat.SetMatrix("_InvP",  projectionMatrix.inverse);
-             _postEffectMat.SetTexture("_BlueNoise", _blueNoise);
-            _postEffectMat.SetFloat("_aoStrength", _aoStrength);
-            _postEffectMat.SetFloat("_aoPower", _aoPower);
-            _postEffectMat.SetFloat("_radius", _aoRadius);
-            _postEffectMat.SetFloat("_bias", 0.1f);
-            _postEffectMat.SetFloat("_debug", 1);
-            _postEffectMat.SetFloat("_fallOffset", _aoFallOffset);
-            //_postEffectMat.SetTexture("_CustomViewZMap", m_dummyRT);
-        }
-        else
-        {
-            this.mainCam.depthTextureMode = DepthTextureMode.DepthNormals;
+            if (this.mainCam.targetTexture == m_dummyRT)
+            {
+                this.mainCam.depthTextureMode = DepthTextureMode.Depth;
+                // Combine the view and projection matrices
+                Matrix4x4 viewProjectionMatrix = projectionMatrix * viewMatrix;
+                // Invert the combined matrix to get the inverse view projection matrix
+                Matrix4x4 inverseViewProjectionMatrix = viewProjectionMatrix.inverse;
+                //_postEffectMat.SetMatrix("_InvVP", inverseViewProjectionMatrix);
+                _postEffectMat.SetMatrix("_InvP",  projectionMatrix.inverse);
+                _postEffectMat.SetTexture("_BlueNoise", _blueNoise);
+                _postEffectMat.SetFloat("_aoStrength", _aoStrength);
+                _postEffectMat.SetFloat("_aoPower", _aoPower);
+                _postEffectMat.SetFloat("_radius", _aoRadius);
+                _postEffectMat.SetFloat("_bias", 0.1f);
+                _postEffectMat.SetFloat("_debug", 1);
+                _postEffectMat.SetFloat("_fallOffset", _aoFallOffset);
+                //_postEffectMat.SetTexture("_CustomViewZMap", m_dummyRT);
+            }
+            else
+            {
+                this.mainCam.depthTextureMode = DepthTextureMode.DepthNormals;
+            }   
         }
     }
 
     private void OnPostRender()
 	{
-        if (this.mainCam.targetTexture == m_dummyRT)
+        if (FF9_ENABLE_SSAO)
         {
-            return;
+            if (this.mainCam.targetTexture == m_dummyRT)
+            {
+                return;
+            }
         }
-		this.rainRenderer.nf_BbgRain();
+
+        this.rainRenderer.nf_BbgRain();
 		SFX.PostRender();
 		UnifiedBattleSequencer.LoopRender();
 	}
@@ -221,25 +245,25 @@ public class BattleMapCameraController : MonoBehaviour
 
 	private void OnRenderImage(RenderTexture src, RenderTexture dest)
 	{
-        if (dest == m_dummyRT)
+        if (FF9_ENABLE_SSAO)
         {
-            Graphics.Blit(src, dest, copyDepthMat);
-            return;
+            if (dest == m_dummyRT)
+            {
+                Graphics.Blit(src, dest, copyDepthMat);
+                return;
+            }
         }
-       // PSXTextureMgr.PostBlur(src, dest);
-        
-
         PSXTextureMgr.PostBlur(src, dest);
 	}
 
 	private void OnGUI()
 	{
         
-        if (!_SsaoRT)
+        /*if (!_SsaoRT)
             
         {
             return;
-        }
+        }*/
         //GUI.DrawTexture(new Rect(0, 0, 512, 512), _SsaoRT, ScaleMode.ScaleToFit, false);
         //GUI.DrawTexture(new Rect(530, 0, 512, 512), m_dummyRT, ScaleMode.ScaleToFit, false);
         //GUI.DrawTexture(new Rect(530, 0, 512, 512), m_dummyRT, ScaleMode.ScaleToFit, false);

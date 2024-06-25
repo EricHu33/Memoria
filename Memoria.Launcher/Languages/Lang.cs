@@ -220,6 +220,7 @@ namespace Memoria.Launcher
             public static readonly string EnableRealismShading = GetSettings(nameof(EnableRealismShading));
             public static readonly string EnableOutlineForFieldCharacter = GetSettings(nameof(EnableOutlineForFieldCharacter));
             public static readonly string EnableOutlineForBattleCharacter = GetSettings(nameof(EnableOutlineForBattleCharacter));
+            public static readonly string EnableSSAO = GetSettings(nameof(EnableSSAO));
             public static readonly string NoAutoTrance = GetSettings(nameof(NoAutoTrance));
 
             // Settings.ini Tooltips
