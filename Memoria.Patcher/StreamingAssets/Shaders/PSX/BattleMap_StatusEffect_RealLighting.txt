@@ -80,9 +80,9 @@ Shader "PSX/BattleMap_StatusEffect_RealLighting" {
 					SetTexture 1 [_DetailTex] 2D 1
 					"ps_2_0
                         def c6, -0, -1, -0.5, 0.200000003
-                        def c7, 0.5, -0.823500037, 1.25, 0.833333313
-                        def c8, -2, 3, -1.66666663, 16
-                        def c9, 0.300000012, 0.699999988, 0, 0
+                        def c7, 0.5, -0.823500037, 1.25, 0.0199999996
+                        def c8, -2, 3, 0.980392158, -1.96078432
+                        def c9, 0.0500000007, 16, 0.300000012, 0.699999988
                         dcl t0
                         dcl t1.xyz
                         dcl t2.xyz
@@ -118,18 +118,18 @@ Shader "PSX/BattleMap_StatusEffect_RealLighting" {
                         nrm_pp r3.xyz, r1
                         nrm_pp r1.xyz, t1
                         dp3_sat_pp r1.w, r3, r1
-                        pow_pp r2.w, r1.w, c8.w
+                        pow_pp r2.w, r1.w, c9.y
                         mul r0.w, r0.w, r2.w
                         mov r1.w, c3.x
-                        mad r1.w, r1.w, c9.x, c9.y
+                        mad r1.w, r1.w, c9.z, c9.w
                         mul_pp r0.w, r0.w, r1.w
                         dp3_pp r1.x, r1, r2
                         mad_sat_pp r1.x, r1.x, -c6.z, -c6.z
-                        add_pp r1.x, r1.x, c6.w
-                        mad_pp r1.y, r1.x, c8.z, c8.y
-                        mul_pp r1.x, r1.x, c7.w
+                        add_pp r1.x, r1.x, c7.w
+                        mad_pp r1.y, r1.x, c8.w, c8.y
+                        mul_pp r1.x, r1.x, c8.z
                         mul_pp r1.x, r1.x, r1.x
-                        mul_pp r1.x, r1.x, r1.y
+                        mad_pp r1.x, r1.y, r1.x, c9.x
                         mov r2.x, t0.z
                         mov r2.y, t0.w
                         texld r2, r2, s1
@@ -196,19 +196,18 @@ Shader "PSX/BattleMap_StatusEffect_RealLighting" {
 					Float 1 [_ShowOutline]
 					SetTexture 0 [_MainTex] 2D 0
 					"ps_2_0
-                        def c2, 0.0799999982, 0.0199999996, 0, 0.349999994
-                        def c3, -1, -0, 1, 0
+                        def c2, -1, -0, 0.100000001, 1
                         dcl t0.xy
                         dcl_2d s0
-                        mov r0.xy, c3
+                        mov r0.xy, c2
                         cmp r0, -c1.x, r0.x, r0.y
                         texkill r0
                         texld r0, t0, s0
                         add r0.w, r0.w, -c0.x
-                        cmp r1, r0.w, c3.y, c3.x
+                        cmp r1, r0.w, c2.y, c2.x
                         texkill r1
-                        mad_pp r0.xyz, r0, c2.w, c2
-                        mov r0.w, c3.z
+                        mul_pp r0.xyz, r0, c2.z
+                        mov_pp r0.w, c2.w
                         mov_pp oC0, r0
 						"
 				}

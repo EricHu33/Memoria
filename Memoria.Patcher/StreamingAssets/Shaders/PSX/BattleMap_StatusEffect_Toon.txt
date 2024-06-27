@@ -170,19 +170,18 @@ Shader "PSX/BattleMap_StatusEffect_Toon" {
 					Float 1 [_ShowOutline]
 					SetTexture 0 [_MainTex] 2D 0
 					"ps_2_0
-                        def c2, 0.0799999982, 0.0199999996, 0, 0.349999994
-                        def c3, -1, -0, 1, 0
+                        def c2, -1, -0, 0.100000001, 1
                         dcl t0.xy
                         dcl_2d s0
-                        mov r0.xy, c3
+                        mov r0.xy, c2
                         cmp r0, -c1.x, r0.x, r0.y
                         texkill r0
                         texld r0, t0, s0
                         add r0.w, r0.w, -c0.x
-                        cmp r1, r0.w, c3.y, c3.x
+                        cmp r1, r0.w, c2.y, c2.x
                         texkill r1
-                        mad_pp r0.xyz, r0, c2.w, c2
-                        mov r0.w, c3.z
+                        mul_pp r0.xyz, r0, c2.z
+                        mov_pp r0.w, c2.w
                         mov_pp oC0, r0
 						"
 				}

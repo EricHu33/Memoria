@@ -282,8 +282,7 @@ Shader "PSX/FieldMapActor_RealLighting" {
 					Float 1 [_ShowOutline]
 					SetTexture 0 [_MainTex] 2D 0
 					"ps_2_0
-                        def c2, -1, -0, -0.5, 1
-                        def c3, 0.0799999982, 0.0199999996, 0, 0.349999994
+                        def c2, -1, -0, -0.5, 0.100000001
                         dcl t0.xy
                         dcl t1.xyz
                         dcl v0
@@ -302,8 +301,8 @@ Shader "PSX/FieldMapActor_RealLighting" {
                         add r1.w, r0.x, r1.w
                         cmp r2, -r1.w, c2.y, c2.x
                         texkill r2
-                        mad_pp r0.xyz, r1, c3.w, c3
-                        mov_pp r0.w, c2.w
+                        mul_pp r0.xyz, r1, c2.w
+                        mov r0.w, -c2.x
                         mov_pp oC0, r0
 						"
 				}
